@@ -41,6 +41,7 @@ namespace SystemVerilogCore.Documents
         Interface,
         Package,
         Program,
+        Checker,
         Primitive,
         Class,
         Variable,
