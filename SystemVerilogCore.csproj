@@ -8,4 +8,8 @@
     <RootNamespace>SystemVerilogCore</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
+  </ItemGroup>
+
 </Project>
