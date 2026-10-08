@@ -17,11 +17,17 @@ namespace SystemVerilogCore.Documents
         /// </summary>
         IReadOnlyDictionary<string, ISystemVerilogBuildingBlock> BuildingBlocks { get; }
 
-        /// <summary>
-        /// All named elements (variables, ports, parameters, ...) directly
-        /// declared inside this block.
-        /// </summary>
-        IReadOnlyList<ISystemVerilogNamedElement> Members { get; }
+       /// <summary>
+       /// All named elements (variables, ports, parameters, ...) directly
+       /// declared inside this block.
+       /// </summary>
+       IReadOnlyList<ISystemVerilogNamedElement> Members { get; }
+
+       /// <summary>
+       /// UI-agnostic autocomplete candidates for symbols declared in this
+       /// block. Hosts convert them into their own presentation objects.
+       /// </summary>
+       IReadOnlyList<ISystemVerilogAutocompleteItem> AutocompleteItems { get; }
     }
 
     public enum SystemVerilogBuildingBlockKind
