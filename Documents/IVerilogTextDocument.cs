@@ -122,23 +122,14 @@ namespace SystemVerilogCore.Documents
         string? IconPath { get; }
     }
 
-    /// <summary>
-    /// One hint line shown at the caret (e.g. a port signature).
-    ///
-    /// <para>
-    /// The editor renders these as a coloured popup; the language server
-    /// forwards them as signature help. The parser only produces the text and
-    /// the palette index, so neither host leaks into it.
-    /// </para>
-    /// </summary>
-    public interface IVerilogPopupItem
-    {
-        /// <summary>Plain text of the hint.</summary>
-        string Text { get; }
-
-        /// <summary>Palette index for the text colour.</summary>
-        byte ColorIndex { get; }
-    }
+    // NOTE: the caret-hint ("popup") surface is intentionally NOT abstracted.
+    //
+    // The editor's `PopupItem` derives from `AjkAvaloniaLibs.Controls.ColorLabel`,
+    // i.e. it is an ordered list of individually coloured text/image spans, and
+    // the parser builds those spans directly (`Port.GetLabel()` returns a
+    // ColorLabel). A `{ Text, ColorIndex }` pair cannot represent that, so an
+    // interface of this shape would be a lie. It will be designed in the stage
+    // that rewrites the hint call sites, where the real shape is in scope.
 
     // NOTE: the project / `include` resolution surface is intentionally NOT
     // abstracted yet.
