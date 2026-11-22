@@ -45,6 +45,18 @@ namespace SystemVerilogCore.Documents
         string CreateString(int startIndex, int length);
 
         /// <summary>
+        /// Returns the whole document text.
+        ///
+        /// <para>
+        /// The tokenizer asks for the entire text when it reports a line
+        /// number for a nested (macro expansion / include) document, where the
+        /// scanner counts newlines itself rather than walking the host's line
+        /// table.
+        /// </para>
+        /// </summary>
+        string CreateString();
+
+        /// <summary>
         /// Records that <paramref name="length"/> characters from
         /// <paramref name="index"/> are painted with the palette entry
         /// <paramref name="colorIndex"/> (an index into the host's colour
@@ -94,6 +106,28 @@ namespace SystemVerilogCore.Documents
         /// </para>
         /// </summary>
         int GetLineStartIndex(int line);
+
+        /// <summary>
+        /// Records a fold region over the character range
+        /// [<paramref name="startIndex"/>, <paramref name="lastIndex"/>].
+        ///
+        /// <para>
+        /// The parser reports foldable constructs (module / begin-end / class
+        /// bodies) as it parses them. Hosts without a folding margin (the
+        /// language server reports folding ranges from the recorded regions
+        /// instead) may implement this as a no-op.
+        /// </para>
+        /// </summary>
+        void AppendBlock(int startIndex, int lastIndex);
+
+        /// <summary>
+        /// Records a named fold region over the character range
+        /// [<paramref name="startIndex"/>, <paramref name="lastIndex"/>].
+        ///
+        /// <paramref name="name"/> is the label the editor shows on the folded
+        /// line; <paramref name="defaultClose"/> starts the region collapsed.
+        /// </summary>
+        void AppendBlock(int startIndex, int lastIndex, string name, bool defaultClose);
     }
 
     /// <summary>
