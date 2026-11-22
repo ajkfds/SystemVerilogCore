@@ -81,6 +81,19 @@ namespace SystemVerilogCore.Documents
         /// stamp diagnostics with a line number.
         /// </summary>
         int GetLineAt(int index);
+
+        /// <summary>
+        /// Start offset of the zero-based <paramref name="line"/>.
+        ///
+        /// <para>
+        /// The counterpart of <see cref="GetLineAt"/>, and 0-based for the same
+        /// reason: a host that reports positions in LSP / zero-based terms can
+        /// convert an offset to (line, character) without knowing whether the
+        /// underlying editor counts lines from 0 or 1. The host implementation
+        /// owns that conversion.
+        /// </para>
+        /// </summary>
+        int GetLineStartIndex(int line);
     }
 
     /// <summary>
