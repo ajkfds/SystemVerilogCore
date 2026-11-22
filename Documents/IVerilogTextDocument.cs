@@ -51,6 +51,59 @@ namespace SystemVerilogCore.Documents
         /// palette, see <c>IVerilogColorPalette</c>).
         /// </summary>
         void SetColorAt(int index, byte colorIndex, int length);
+
+        /// <summary>
+        /// Records a diagnostic mark (the squiggle the editor draws) over
+        /// <paramref name="length"/> characters from <paramref name="index"/>,
+        /// using the host's mark style entry <paramref name="markIndex"/>
+        /// (0 = error, 1 = warning, ...).
+        ///
+        /// <para>
+        /// The parser raises errors / warnings / notices / hints through
+        /// <c>ParsedDocument.AddError</c> &amp; friends, which both record a
+        /// message and ask the document to mark the offending span. Hosts that
+        /// cannot draw marks (the language server reports diagnostics instead)
+        /// may implement this as a no-op.
+        /// </para>
+        /// </summary>
+        void SetMarkAt(int index, int length, byte markIndex);
+
+        /// <summary>
+        /// The file this document belongs to, or null for a throw-away
+        /// document (a macro expansion buffer, a snapshot taken for an
+        /// include). Used by diagnostics to record which file a message came
+        /// from.
+        /// </summary>
+        IVerilogDocumentFile? File { get; }
+
+        /// <summary>
+        /// The zero-based line containing <paramref name="index"/>. Used to
+        /// stamp diagnostics with a line number.
+        /// </summary>
+        int GetLineAt(int index);
+    }
+
+    /// <summary>
+    /// The identity of the file a document was created from.
+    ///
+    /// <para>
+    /// Only what the parser needs for diagnostics and cross-file lookups: an
+    /// id, a project-relative path and a display name. The editor's
+    /// <c>Data.IVerilogRelatedFile</c> and the language server's in-memory file
+    /// both satisfy this shape, which is why the parser can talk to either
+    /// without referencing the editor's data types.
+    /// </para>
+    /// </summary>
+    public interface IVerilogDocumentFile
+    {
+        /// <summary>Unique id of the file (host-defined).</summary>
+        string Id { get; }
+
+        /// <summary>Project-relative path, '/'-separated.</summary>
+        string RelativePath { get; }
+
+        /// <summary>Display name (usually the file name).</summary>
+        string Name { get; }
     }
 
     /// <summary>
