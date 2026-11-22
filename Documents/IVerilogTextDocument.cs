@@ -220,6 +220,19 @@ namespace SystemVerilogCore.Documents
 
         /// <summary>Optional icon asset path (host-specific), or null.</summary>
         string? IconPath { get; }
+
+        /// <summary>
+        /// What kind of thing the candidate names (keyword, variable, module,
+        /// ...).
+        ///
+        /// <para>
+        /// Hosts need this to pick their own presentation - the language server
+        /// maps it to an LSP <c>CompletionItemKind</c>, the editor to its popup
+        /// icon. Keeping it on the contract means neither has to infer the kind
+        /// from the label or reach into the parser's concrete candidate type.
+        /// </para>
+        /// </summary>
+        SystemVerilogAutocompleteItemKind Kind { get; }
     }
 
     // NOTE: the caret-hint ("popup") surface is intentionally NOT abstracted.
