@@ -212,8 +212,27 @@ namespace SystemVerilogCore.Documents
     /// </summary>
     public interface IVerilogAutocompleteItem
     {
-        /// <summary>Text inserted when the candidate is accepted.</summary>
+        /// <summary>Text shown in the candidate list.</summary>
         string Label { get; }
+
+        /// <summary>
+        /// Text to insert when the candidate is accepted.
+        ///
+        /// <para>
+        /// Usually the same as <see cref="Label"/>, but not always: a module
+        /// name expands to a whole instantiation, and a block keyword expands to
+        /// its begin/end skeleton. Keeping the two separate means a host can
+        /// insert the right text without re-deriving it from the label, which is
+        /// what the editor's candidate types currently do inside their
+        /// <c>ApplyAsync</c>.
+        /// </para>
+        ///
+        /// <para>
+        /// This is the plain text; a host that supports tab stops renders them
+        /// itself (the editor keeps a highlight list, VS Code uses snippets).
+        /// </para>
+        /// </summary>
+        string InsertText { get; }
 
         /// <summary>Palette index for the label colour.</summary>
         byte ColorIndex { get; }
