@@ -4,6 +4,50 @@ using System.Text;
 namespace SystemVerilogCore.Documents
 {
     /// <summary>
+    /// The state a partial parse collects for one completion request: the word
+    /// being typed and the candidates / hints found for it.
+    ///
+    /// <para>
+    /// This used to be the editor's <c>CodeComplete.CompletionContext</c> base
+    /// class, which the parser inherited. Its contents are entirely UI-free
+    /// (two plain values and two lists of the contracts above), so the parser
+    /// now owns the shape and the editor derives from it. That removes the last
+    /// base-class dependency the parser had on the editor assembly.
+    /// </para>
+    ///
+    /// <para>
+    /// Hosts treat it as plain data: the editor turns each candidate into a
+    /// popup row and each hint into a PopupItem, and the language server maps
+    /// the candidates to LSP completion items.
+    /// </para>
+    /// </summary>
+    public class VerilogCompletionContext
+    {
+        /// <summary>
+        /// The identifier fragment before the caret that candidates are
+        /// filtered by. Empty when the caret is not on a word.
+        /// </summary>
+        public string CandidateWord = "";
+
+        /// <summary>
+        /// Document offset where <see cref="CandidateWord"/> starts, i.e. the
+        /// start of the range an accepted candidate replaces.
+        /// </summary>
+        public int CandidateStartIndex;
+
+        /// <summary>
+        /// Candidates for the current word (the autocomplete popup menu).
+        /// </summary>
+        public List<IVerilogAutocompleteItem> AutoCompleteItems = new();
+
+        /// <summary>
+        /// Caret-anchored hint entries for the current word (port / parameter
+        /// labels shown while typing an argument).
+        /// </summary>
+        public List<IVerilogPopupItem> CarletPopupItems = new();
+    }
+
+    /// <summary>
     /// A caret-hint entry the parser produces (a port / parameter label shown
     /// while typing an argument).
     ///
