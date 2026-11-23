@@ -59,6 +59,21 @@ namespace SystemVerilogCore.Projects
         /// </para>
         /// </summary>
         IVerilogProject? ResolveProject(string name);
+
+        /// <summary>
+        /// The sink for the parser's informational log lines, or null when the
+        /// host has nowhere to show them.
+        ///
+        /// <para>
+        /// Parse sites used to call the editor's static
+        /// <c>Controller.AppendLog</c> directly to report things like
+        /// "## unfound module X at Y". That made the parser reference the editor
+        /// assembly and left the language server calling a UI singleton that
+        /// does not exist there. Hosts that have no log view simply return null
+        /// and the line is dropped - a log line never affects the parse result.
+        /// </para>
+        /// </summary>
+        Parsing.IVerilogDiagnosticLog? Log { get; }
     }
 
     /// <summary>
