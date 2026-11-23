@@ -29,7 +29,26 @@ namespace SystemVerilogCore.Documents
         /// Builds a short description. Returns <c>null</c> if the element
         /// does not have a name.
         /// </summary>
-        public static string? Build(ISystemVerilogNamedElement? element)
+        public static string? Build(ISystemVerilogNamedElement? element) =>
+            Build(element, null);
+
+        /// <summary>
+        /// Builds a short description, using <paramref name="signatureBlock"/>
+        /// in place of the generated signature code block.
+        ///
+        /// <para>
+        /// A host that can render the parser's own label (the language server,
+        /// through a TextMate grammar) passes it here so the hover shows the
+        /// same coloured declaration the editor's mouse-over hint paints. The
+        /// definition path and the overall layout stay in this one place, so
+        /// both hosts keep the same shape.
+        /// </para>
+        /// </summary>
+        /// <param name="signatureBlock">
+        /// Pre-rendered markdown block to show instead of the plain
+        /// <c>systemverilog</c> fence, or null to generate the signature.
+        /// </param>
+        public static string? Build(ISystemVerilogNamedElement? element, string? signatureBlock)
         {
             if (element == null) return null;
             if (string.IsNullOrEmpty(element.Name)) return null;
@@ -45,9 +64,16 @@ namespace SystemVerilogCore.Documents
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("```systemverilog\n");
-            sb.Append(FormatSignature(element));
-            sb.Append("\n```");
+            if (string.IsNullOrEmpty(signatureBlock))
+            {
+                sb.Append("```systemverilog\n");
+                sb.Append(FormatSignature(element));
+                sb.Append("\n```");
+            }
+            else
+            {
+                sb.Append(signatureBlock);
+            }
 
             if (element.File != null)
             {
@@ -62,6 +88,17 @@ namespace SystemVerilogCore.Documents
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// The one-line signature of an element (e.g. <c>module foo</c>).
+        ///
+        /// <para>
+        /// Exposed so a host that renders its own fence can reuse the exact
+        /// wording, keeping the two hosts' hovers identical.
+        /// </para>
+        /// </summary>
+        public static string BuildSignature(ISystemVerilogNamedElement element) =>
+            FormatSignature(element);
 
         private static string FormatSignature(ISystemVerilogNamedElement element)
         {
