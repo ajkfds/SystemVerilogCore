@@ -29,23 +29,46 @@ The interfaces deliberately do **not** expose:
 ```
                           SystemVerilogLanguageServer
                                    │
-                                   │  depends only on
+                                   │  depends on
                                    ▼
                             SystemVerilogCore  (this assembly)
                                    ▲
                                    │  implemented by
                                    │
+                       SystemVerilogLanguageServer.Server
+                            InMemorySystemVerilogCore
+                                   │
+                                   │  drives the real parser via
+                                   ▼
                        CodeEditor2VerilogPlugin
-                       (CoreBridge/...Adapter.cs)
+                         (CoreBridge/ParseEngine)
 ```
 
-* `CodeEditor2VerilogPlugin` ships adapters under
-  `pluginVerilog.CoreBridge` that wrap the plugin's existing
-  `VerilogFile`, `CodeDocument`, `ParsedDocument`, and `Project` types
-  in the SystemVerilogCore interfaces.
-* `SystemVerilogLanguageServer` consumes the SystemVerilogCore
-  interfaces only. It can therefore be hosted in any process, including
-  one without Avalonia.
+* `SystemVerilogLanguageServer` is the **only** consumer of this
+  assembly. It implements the interfaces in
+  `Server/InMemorySystemVerilogCore.cs` and drives the real plugin parser
+  through `pluginVerilog.CoreBridge.ParseEngine`, which is UI-free.
+* `CodeEditor2VerilogPlugin` does **not** reference this assembly. It
+  exposes parser-facing, UI-free helpers (`ParseEngine`,
+  `CompletionAdapter`, `SnippetAdapter`, `AutoConnectAdapter`, ...) that
+  return its own DTOs. The desktop editor and the language server both
+  call those helpers, but neither the plugin nor the desktop editor
+  depends on the LSP contract types.
+* This assembly has **no package references**: it must stay free of
+  Avalonia (and any other UI stack) so the server can be hosted in a
+  plain process.
+
+> **History.** The plugin used to carry an adapter stack
+> (`VerilogSystemVerilogCore`, `SystemVerilogProjectAdapter`,
+> `SystemVerilogFileAdapter`, `SystemVerilogDocumentAdapter`,
+> `BuildingBlockAdapter`, `NamedElementAdapter`, `SymbolResolver`,
+> `PluginHoverContentProvider`) that implemented these interfaces for the
+> desktop side. It was unreachable: the only entry point wrapped a
+> `Project` and nothing ever read the result, and the language server
+> never used it (it builds its own `InMemory*` model from `ParseEngine`).
+> That stack has been deleted so there is exactly one implementation of
+> this seam. `HoverContent` / `IHoverContentProvider` remain as an
+> extension point for the server.
 
 ## Status
 
@@ -78,9 +101,10 @@ SystemVerilogCore.Documents.HoverContent.RegisterProvider(
     new MyPluginHoverProvider());
 ```
 
-The plugin-side adapter (`pluginVerilog.CoreBridge.PluginHoverContentProvider`)
-already does this from `Plugin.Register()` and adds data type, bit
-width, port direction and a port list to the markdown block.
+The default `HoverContent` output is already a complete markdown block
+(signature + defining file). Hosts that know more about an element can
+install a provider once at startup; `SystemVerilogLanguageServer` does
+not currently install one, so it serves the default text.
 
 ## Diagnostic codes
 
