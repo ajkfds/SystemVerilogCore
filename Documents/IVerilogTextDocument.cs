@@ -108,6 +108,18 @@ namespace SystemVerilogCore.Documents
         int GetLineStartIndex(int line);
 
         /// <summary>
+        /// Length of the zero-based <paramref name="line"/>, excluding the line
+        /// terminator.
+        ///
+        /// <para>
+        /// The parser needs this when it rebuilds a single line of text (hint
+        /// assembly) or trims a colour span to the end of a line, without
+        /// walking the characters itself.
+        /// </para>
+        /// </summary>
+        int GetLineLength(int line);
+
+        /// <summary>
         /// Records a fold region over the character range
         /// [<paramref name="startIndex"/>, <paramref name="lastIndex"/>].
         ///
