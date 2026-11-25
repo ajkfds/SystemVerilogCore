@@ -151,5 +151,17 @@ namespace SystemVerilogCore.Projects
 
         /// <summary>Project-relative path, '/'-separated.</summary>
         string RelativePath { get; }
+
+        /// <summary>
+        /// This item's children, or null when it has none.
+        ///
+        /// <para>
+        /// Read-only view: the parser walks the tree through it (hierarchy and
+        /// include resolution). Writing is a separate concern
+        /// (<see cref="IVerilogItemList"/>) because only one path needs it and
+        /// only the editor can service it.
+        /// </para>
+        /// </summary>
+        IVerilogItemList? Items { get; }
     }
 }

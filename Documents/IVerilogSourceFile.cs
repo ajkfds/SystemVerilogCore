@@ -139,5 +139,24 @@ namespace SystemVerilogCore.Documents
         /// A few constructs are only legal in one of the two.
         /// </summary>
         bool IsSystemVerilog { get; }
+
+        /// <summary>
+        /// This file's children in the project's item tree, or null when it has
+        /// none (or when the host has no item tree).
+        ///
+        /// <para>
+        /// The parser records an on-demand parsed module instance here so the
+        /// editor's tree shows it. A host without a tree (the language server)
+        /// returns null and the write is skipped.
+        /// </para>
+        ///
+        /// <para>
+        /// Spelled <c>ChildItems</c> rather than <c>Items</c> on purpose: the
+        /// editor's <c>ITextFile</c> already declares <c>Items</c>, and a second
+        /// declaration would make every call site through the editor's file types
+        /// ambiguous (CS0229).
+        /// </para>
+        /// </summary>
+        Projects.IVerilogItemList? ChildItems { get; }
     }
 }
