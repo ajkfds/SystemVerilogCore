@@ -63,6 +63,20 @@ namespace SystemVerilogCore.Documents
         {
         }
 
+        /// <summary>
+        /// A fresh plain-text buffer holding the same text.
+        ///
+        /// <para>
+        /// This document is already a throw-away buffer (nothing displays it), so
+        /// a snapshot is just another plain buffer. It is only ever tokenised and
+        /// coloured, so dropping the colour spans is harmless.
+        /// </para>
+        /// </summary>
+        public IVerilogTextDocument CreateSnapshot()
+        {
+            return new PlainTextDocument(text);
+        }
+
         /// <summary>No-op: these buffers are never displayed.</summary>
         public void SetMarkAt(int index, int length, byte markIndex)
         {

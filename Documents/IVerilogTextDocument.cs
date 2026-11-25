@@ -65,6 +65,26 @@ namespace SystemVerilogCore.Documents
         void SetColorAt(int index, byte colorIndex, int length);
 
         /// <summary>
+        /// Creates an independent buffer holding a copy of this document's text.
+        ///
+        /// <para>
+        /// The parser needs this when it dives into an <c>include</c>: the
+        /// included file is tokenised from a snapshot so the colour spans it
+        /// writes do not disturb the parent buffer, and so a later edit to the
+        /// parent does not shift them. The host owns the copy - the editor clones
+        /// its own document type, a plain host returns another
+        /// <see cref="PlainTextDocument"/> - which is why this is on the contract
+        /// rather than the parser calling a concrete document constructor.
+        /// </para>
+        ///
+        /// <para>
+        /// The returned document is only tokenised and coloured; it is never
+        /// displayed. Implementations may therefore return a plain text buffer.
+        /// </para>
+        /// </summary>
+        IVerilogTextDocument CreateSnapshot();
+
+        /// <summary>
         /// Records a diagnostic mark (the squiggle the editor draws) over
         /// <paramref name="length"/> characters from <paramref name="index"/>,
         /// using the host's mark style entry <paramref name="markIndex"/>
