@@ -37,5 +37,22 @@ namespace SystemVerilogCore.Verilog
         /// </para>
         /// </summary>
         object? FindRootNamedElement(string name);
+
+        /// <summary>Unique id of the file (host-defined).</summary>
+        string Id { get; }
+
+        /// <summary>
+        /// Name of the project this file belongs to, or an empty string when it
+        /// is not attached to one yet.
+        ///
+        /// <para>
+        /// A file reference records this so the host can find the project again
+        /// later (<c>// @project &lt;name&gt;</c> resolves by the same key).
+        /// </para>
+        /// </summary>
+        string ProjectName { get; }
+
+        /// <summary>Project-relative path, '/'-separated.</summary>
+        string FileRelativePath { get; }
     }
 }
