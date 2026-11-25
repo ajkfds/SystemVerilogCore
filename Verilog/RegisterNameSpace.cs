@@ -33,8 +33,19 @@ namespace SystemVerilogCore.Verilog
     /// parse result, so the editor keeps its <c>ITextFile</c> base.
     /// </para>
     /// </summary>
-    public class RegisterNameSpace<T> where T : class
+    public class RegisterNameSpace<T> : IVerilogNameSpace where T : class
     {
+        // ---- IVerilogNameSpace (non-generic view) -------------------------
+        // The settings contract carries the name spaces without naming their
+        // element type; parse sites narrow the result back to T.
+
+        object? IVerilogNameSpace.GetElement(string name) => Get(name);
+
+        IVerilogNameSpaceFile? IVerilogNameSpace.GetDeclaringFile(string name) => GetFile(name);
+
+        List<string> IVerilogNameSpace.GetNameList(Func<object, bool> isMatched) =>
+            GetNameList(element => isMatched(element));
+
         // Thread-safe access using ReaderWriterLockSlim
         private readonly ReaderWriterLockSlim accessLock =
             new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
