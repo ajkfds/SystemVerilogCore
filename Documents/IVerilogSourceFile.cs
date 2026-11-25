@@ -114,6 +114,17 @@ namespace SystemVerilogCore.Documents
         Projects.IVerilogProject? VerilogProject { get; }
 
         /// <summary>
+        /// Unique id of the file (host-defined).
+        ///
+        /// <para>
+        /// Same value as the editor's <c>ITextFile.ID</c>. Spelled with a lower
+        /// case `d` so it does not collide with that member (a re-declaration
+        /// would make every call site through the editor's file types ambiguous).
+        /// </para>
+        /// </summary>
+        string Id { get; }
+
+        /// <summary>
         /// Project-relative path, '/'-separated.
         ///
         /// <para>
