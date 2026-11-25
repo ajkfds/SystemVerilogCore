@@ -55,6 +55,19 @@ namespace SystemVerilogCore.Documents
         Parsing.IParsedDocument? GetInstancedParsedDocument(string instanceKey);
 
         /// <summary>
+        /// This file's own parse result, or null when it has not been parsed yet.
+        ///
+        /// <para>
+        /// Used as the fallback when a parameter-overridden instance result is not
+        /// available: the base parse is what the instance would otherwise
+        /// resolve against. Same value as the editor's
+        /// <c>IVerilogRelatedFile.VerilogParsedDocument</c>, under a name that does
+        /// not collide with <c>ITextFile.ParsedDocument</c>.
+        /// </para>
+        /// </summary>
+        Parsing.IParsedDocument? VerilogParsedResult { get; }
+
+        /// <summary>
         /// The document the parser reads and colours, or null when the file has
         /// no buffer yet.
         ///
