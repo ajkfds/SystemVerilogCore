@@ -39,6 +39,33 @@ namespace SystemVerilogCore.Documents
         Parsing.IParsedDocument? IncludeParsedDocument { get; }
 
         /// <summary>
+        /// The included file, viewed as a source file.
+        ///
+        /// <para>
+        /// The parser builds the include's own parse result from this: it needs
+        /// the buffer to snapshot and the identity for the cache key. An include
+        /// wrapper is not itself a source file on every host (the language
+        /// server's wrapper is not), so it hands one out rather than deriving
+        /// from the contract.
+        /// </para>
+        /// </summary>
+        IVerilogSourceFile? SourceFile { get; }
+
+        /// <summary>
+        /// Where the <c>include</c> directive appeared, as the opaque token the
+        /// parser handed to the factory.
+        ///
+        /// <para>
+        /// The prototype pass records the include, and the real pass has to find
+        /// that same entry again by position (an include can appear twice in one
+        /// file, so the path alone is not unique). The parser compares these
+        /// tokens with <c>IndexReference.IsSameAs</c>; the contract only carries
+        /// them, it does not interpret them.
+        /// </para>
+        /// </summary>
+        object? InstancedReference { get; }
+
+        /// <summary>
         /// Releases the include's buffer and parse result.
         ///
         /// <para>

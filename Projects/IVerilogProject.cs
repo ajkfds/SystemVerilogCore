@@ -74,6 +74,20 @@ namespace SystemVerilogCore.Projects
         /// </para>
         /// </summary>
         Parsing.IVerilogDiagnosticLog? Log { get; }
+
+        /// <summary>
+        /// Creates the include instances the parser records for
+        /// <c>include</c> directives, or null when this host cannot make them.
+        ///
+        /// <para>
+        /// The include wrapper is a host concept (the editor's is an item-tree
+        /// node with a project and a parent file), so the parser asks the host
+        /// to create one instead of naming the editor's factory. A host with no
+        /// item tree returns null and the parser reports the include as
+        /// unresolved.
+        /// </para>
+        /// </summary>
+        Documents.IVerilogIncludeFileFactory? IncludeFileFactory { get; }
     }
 
     /// <summary>
