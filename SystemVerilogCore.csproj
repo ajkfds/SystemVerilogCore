@@ -8,11 +8,19 @@
     <RootNamespace>SystemVerilogCore</RootNamespace>
   </PropertyGroup>
 
-  <!-- No package references on purpose: this assembly is the UI-free contract
-       that the VS Code language server consumes. It must not pull in Avalonia
-       (or any other UI stack) so that the LSP can be hosted in a plain process.
-       It previously referenced AvaloniaUI.DiagnosticsSupport while containing
-       no Avalonia code at all, which dragged the whole Avalonia dependency
-       graph into the bundled server. -->
+  <ItemGroup>
+    <!-- The parser reads and writes `.rule.yaml` files (rule severity
+         settings), so the YAML reader lives here with the parser. YamlDotNet
+         is plain managed code with no UI dependency, so it does not violate
+         the rule below. -->
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+  </ItemGroup>
+
+  <!-- No UI package references on purpose: this assembly is the UI-free
+       contract that the VS Code language server consumes. It must not pull in
+       Avalonia (or any other UI stack) so that the LSP can be hosted in a plain
+       process. It previously referenced AvaloniaUI.DiagnosticsSupport while
+       containing no Avalonia code at all, which dragged the whole Avalonia
+       dependency graph into the bundled server. -->
 
 </Project>
