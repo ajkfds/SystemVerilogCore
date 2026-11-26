@@ -160,6 +160,26 @@ namespace SystemVerilogCore.Documents
         Projects.IVerilogItemList? ChildItems { get; }
 
         /// <summary>
+        /// Ensures this file has a buffer holding <paramref name="text"/>.
+        ///
+        /// <para>
+        /// The autocomplete partial parse reads the source text from the file's
+        /// buffer, and the identifier-chain walk that decides what to offer reads
+        /// it too. A host that never loaded the file (the language server) has no
+        /// buffer, so the parse result's text is handed over here and the
+        /// implementation makes one.
+        /// </para>
+        ///
+        /// <para>
+        /// This is a host operation (creating a document is a host type), which is
+        /// why it is on the contract rather than in the provider: the provider
+        /// only knows <see cref="IVerilogTextDocument"/>.
+        /// </para>
+        /// </summary>
+        /// <param name="text">The text the buffer must hold.</param>
+        void PrepareVerilogTextDocument(string text);
+
+        /// <summary>
         /// Creates a parser for this file, typed as the UI-free contract.
         ///
         /// <para>

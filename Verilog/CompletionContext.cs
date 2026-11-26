@@ -30,17 +30,43 @@ namespace SystemVerilogCore.Verilog
             SystemVerilogCore.Documents.IVerilogSourceFile item,
             Verilog.ParsedDocument parsedDocument,
             int index)
+            : this(item, parsedDocument, index, null)
+        {
+        }
+
+        /// <summary>
+        /// Builds the context over an explicit buffer.
+        /// </summary>
+        /// <param name="item">The file being completed.</param>
+        /// <param name="parsedDocument">Its parse result.</param>
+        /// <param name="index">Caret offset.</param>
+        /// <param name="document">
+        /// The buffer to read the text from, or null to use the file's own.
+        /// A host that has no buffer on the file (a UI-less host that never
+        /// loaded it) passes the text it parsed here.
+        /// </param>
+        public CompletionContext(
+            SystemVerilogCore.Documents.IVerilogSourceFile item,
+            Verilog.ParsedDocument parsedDocument,
+            int index,
+            SystemVerilogCore.Documents.IVerilogTextDocument? hostDocument)
         {
 
-            // Only the contract surface is needed here (length / substring /
-            // line lookup), so the editor's concrete document type is not named.
-            SystemVerilogCore.Documents.IVerilogTextDocument? codeDocument = item.VerilogTextDocument;
-            if (codeDocument == null) return;
+            // The fields are assigned before the buffer check: the fallback
+            // candidate enumeration (AppendAll) only needs the parse result, so
+            // a context without a buffer still has to answer it. Leaving them
+            // unset made AppendAll throw on a null parsedDocument.
             CandidateWord = "";
 
             this.item = item;
             this.parsedDocument = parsedDocument;
             this.index = index;
+
+            // Only the contract surface is needed here (length / substring /
+            // line lookup), so the editor's concrete document type is not named.
+            SystemVerilogCore.Documents.IVerilogTextDocument? codeDocument =
+                hostDocument ?? item.VerilogTextDocument;
+            if (codeDocument == null) return;
 
             // GetAutoCompleteTarget returns false e.g. when the caret is right after a
             // space/tab (no dot context). Even in that case the namespace / candidate
