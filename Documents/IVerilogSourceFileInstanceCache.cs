@@ -28,4 +28,30 @@ namespace SystemVerilogCore.Documents
         /// </summary>
         void RegisterInstanceParsedDocument(string instanceKey, Parsing.IParsedDocument parsedDocument);
     }
+
+    /// <summary>
+    /// A source file that can hold its own parse result.
+    ///
+    /// <para>
+    /// The editor stores a parse result on the file while accepting it
+    /// (<c>TextFile.AcceptParsedDocumentAsync</c>), and everything downstream
+    /// reads it back through <see cref="IVerilogSourceFile.VerilogParsedResult"/>:
+    /// the hierarchy update, the completion / snippet adapters, the token
+    /// adapter. A host that drives a parse itself has to fill the same slot, or
+    /// those readers see no parse result at all.
+    /// </para>
+    ///
+    /// <para>
+    /// <see cref="IVerilogSourceFile.VerilogParsedResult"/> is the read side; this
+    /// is the write side. A host with no such slot simply does not implement it
+    /// and the write is skipped.
+    /// </para>
+    /// </summary>
+    public interface IVerilogSourceFileParseCache
+    {
+        /// <summary>
+        /// Stores <paramref name="parsedDocument"/> as this file's parse result.
+        /// </summary>
+        void SetVerilogParsedResult(Parsing.IParsedDocument parsedDocument);
+    }
 }

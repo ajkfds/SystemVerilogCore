@@ -46,19 +46,20 @@ namespace SystemVerilogCore.Parsing
         public static async Task<Verilog.ParsedDocument?> ParseSystemVerilogAsync(
             string text,
             IVerilogSourceFile file,
-            CancellationToken? cancellationToken = null)
+            CancellationToken? cancellationToken = null,
+            IVerilogTextDocument? document = null)
         {
             if (text == null) return null;
             if (file == null) return null;
 
             Verilog.ParsedDocument? parsedDocument =
-                await ParseOnceAsync(text, file, cancellationToken);
+                await ParseOnceAsync(text, file, cancellationToken, document);
             if (parsedDocument == null) return null;
 
             if (parsedDocument.ErrorCount > 0)
             {
                 Verilog.ParsedDocument? second =
-                    await ParseOnceAsync(text, file, cancellationToken);
+                    await ParseOnceAsync(text, file, cancellationToken, document);
                 if (second != null) parsedDocument = second;
             }
 
@@ -119,9 +120,10 @@ namespace SystemVerilogCore.Parsing
         private static async Task<Verilog.ParsedDocument?> ParseOnceAsync(
             string text,
             IVerilogSourceFile file,
-            CancellationToken? cancellationToken)
+            CancellationToken? cancellationToken,
+            IVerilogTextDocument? hostDocument)
         {
-            IVerilogTextDocument document = CreateDocument(text, file);
+            IVerilogTextDocument document = hostDocument ?? CreateDocument(text, file);
 
             VerilogParser parser = new VerilogParser(
                 file, document, VerilogParseMode.BackgroundParse);
@@ -131,6 +133,12 @@ namespace SystemVerilogCore.Parsing
             Verilog.ParsedDocument parsedDocument = parser.VerilogParsedDocument;
 
             parser.RegisterRootElements();
+
+            // Store the result on the file, which is what the editor does while
+            // accepting a parse result. Everything downstream (hierarchy update,
+            // completion / snippet / token adapters) reads it back from there, so
+            // a host that drives the parse itself has to fill the same slot.
+            (file as IVerilogSourceFileParseCache)?.SetVerilogParsedResult(parsedDocument);
 
             return parsedDocument;
         }
