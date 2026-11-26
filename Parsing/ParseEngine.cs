@@ -90,13 +90,14 @@ namespace SystemVerilogCore.Parsing
             IVerilogSourceFile file,
             string moduleName,
             Dictionary<string, Verilog.Expressions.Expression> parameterOverrides,
-            CancellationToken? cancellationToken = null)
+            CancellationToken? cancellationToken = null,
+            IVerilogTextDocument? hostDocument = null)
         {
             if (text == null) return null;
             if (file == null) return null;
             if (string.IsNullOrEmpty(moduleName)) return null;
 
-            IVerilogTextDocument document = CreateDocument(text, file);
+            IVerilogTextDocument document = hostDocument ?? CreateDocument(text, file);
 
             VerilogParser parser = new VerilogParser(
                 file, document, moduleName, parameterOverrides, VerilogParseMode.BackgroundParse);
@@ -160,7 +161,52 @@ namespace SystemVerilogCore.Parsing
             // The buffer reports the file as its owner: a parse drops a message
             // when the buffer belongs to no file, so an in-memory host would lose
             // every diagnostic otherwise.
-            return new PlainTextDocument(text, file as IVerilogDocumentFile);
+            return new PlainTextDocument(text, AsDocumentFile(file));
+        }
+
+        /// <summary>
+        /// The file's identity view for the buffer to report.
+        ///
+        /// <para>
+        /// A host file may already implement <see cref="IVerilogDocumentFile"/>
+        /// (the language server's in-memory file does), but the editor's file does
+        /// not: its <c>RelativePath</c> / <c>Name</c> live on a different
+        /// interface, and re-declaring them would make every call site through
+        /// the editor's types ambiguous (CS0229, hit twice already). So the
+        /// editor file is wrapped here instead.
+        /// </para>
+        /// </summary>
+        private static IVerilogDocumentFile AsDocumentFile(IVerilogSourceFile file)
+        {
+            if (file is IVerilogDocumentFile documentFile) return documentFile;
+            return new SourceFileIdentity(file);
+        }
+
+        /// <summary>
+        /// Identity-only view over a source file, used when the host's own file
+        /// type cannot implement <see cref="IVerilogDocumentFile"/> directly.
+        /// </summary>
+        private sealed class SourceFileIdentity : IVerilogDocumentFile
+        {
+            private readonly IVerilogSourceFile file;
+
+            public SourceFileIdentity(IVerilogSourceFile file) => this.file = file;
+
+            public string Id => file.Id;
+
+            public string RelativePath => file.FileRelativePath;
+
+            public string Name
+            {
+                get
+                {
+                    string path = file.FileRelativePath;
+                    int separator = path.LastIndexOf('/');
+                    return separator >= 0 && separator + 1 < path.Length
+                        ? path.Substring(separator + 1)
+                        : path;
+                }
+            }
         }
     }
 }

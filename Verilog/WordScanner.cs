@@ -1483,13 +1483,15 @@ namespace SystemVerilogCore.Verilog
             // no longer builds the plugin's CodeDocument (which pulls in the
             // editor's document type).
             SystemVerilogCore.Documents.IVerilogTextDocument codeDocument =
-                new SystemVerilogCore.Documents.PlainTextDocument(macroText);
+                new SystemVerilogCore.Documents.PlainTextDocument(
+                    macroText, wordPointer.ParsedDocument.File as SystemVerilogCore.Documents.IVerilogDocumentFile);
             string key = "";
             ParsedDocument newParsedDocument = new ParsedDocument(
                 wordPointer.ParsedDocument.File!,
                 key,
                 null,
-                wordPointer.ParsedDocument.ParseMode);
+                wordPointer.ParsedDocument.ParseMode,
+                codeDocument);
             WordPointer newPointer = new WordPointer(codeDocument, newParsedDocument, 0);
 
             wordPointer = newPointer;
@@ -1857,13 +1859,15 @@ namespace SystemVerilogCore.Verilog
             // longer builds the plugin's CodeDocument (which pulls in the
             // editor's document type).
             SystemVerilogCore.Documents.IVerilogTextDocument codeDocument =
-                new SystemVerilogCore.Documents.PlainTextDocument(macroText);
+                new SystemVerilogCore.Documents.PlainTextDocument(
+                    macroText, wordPointer.ParsedDocument.File as SystemVerilogCore.Documents.IVerilogDocumentFile);
             string key = "";// Verilog.ParsedDocument.KeyGenerator(wordPointer.VerilogFile,) .KeyGenerator(wordPointer.ParsedDocument, wordPointer.Index);
             ParsedDocument newParsedDocument = new ParsedDocument(
                 wordPointer.ParsedDocument.File!,
                 key,
                 null,
-                wordPointer.ParsedDocument.ParseMode);
+                wordPointer.ParsedDocument.ParseMode,
+                codeDocument);
             WordPointer newPointer = new WordPointer(codeDocument, newParsedDocument, 0);// wordPointer.ParsedDocument);
 
             wordPointer = newPointer;
