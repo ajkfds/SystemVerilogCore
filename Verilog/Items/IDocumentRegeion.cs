@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SystemVerilogCore.Verilog.Items
+{
+    public interface IDocumentRegeion
+    {
+        public IndexReference? BeginIndexReference { get; }
+        public IndexReference? LastIndexReference { get; }
+
+    }
+}

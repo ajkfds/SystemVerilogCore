@@ -1,0 +1,10 @@
+namespace SystemVerilogCore.Verilog.DataObjects.Constants
+{
+    public class Localparam : Constants
+    {
+        public override DataObject Clone(string name)
+        {
+            return new Localparam { DefinedReference = DefinedReference, Expression = Expression, Name = name, Defined = Defined, DataType = DataType?.Clone() };
+        }
+    }
+}

@@ -54,5 +54,23 @@ namespace SystemVerilogCore.Verilog
 
         /// <summary>Project-relative path, '/'-separated.</summary>
         string FileRelativePath { get; }
+
+        /// <summary>
+        /// This file's own parse result, or null when it has not been parsed.
+        ///
+        /// <para>
+        /// Parse sites resolve a declared name through a name space to the file
+        /// that declared it, then read the declaration back out of that file's
+        /// parse result (a package's classes, an interface class's methods). The
+        /// name space therefore has to hand back a file that carries its result,
+        /// not just its identity.
+        /// </para>
+        ///
+        /// <para>
+        /// Typed as <see cref="Parsing.IParsedDocument"/> so this stays UI-free;
+        /// the parser narrows it to its own <c>ParsedDocument</c>.
+        /// </para>
+        /// </summary>
+        Parsing.IParsedDocument? ParsedResult { get; }
     }
 }
