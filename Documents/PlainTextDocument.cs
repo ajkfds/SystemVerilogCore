@@ -74,12 +74,24 @@ namespace SystemVerilogCore.Documents
         public string CreateString() => text;
 
         /// <summary>
-        /// No-op: these buffers are never displayed, so there is no colour table
-        /// to fill.
+        /// Colour spans written into this buffer. Kept so a host that parses
+        /// in memory (the language server) can publish them; nothing displays
+        /// this document, so the spans are only ever read back.
+        /// </summary>
+        private readonly List<VerilogColorSpan> colorSpans = new();
+
+        /// <summary>
+        /// Records a colour span. Kept in order of arrival, which is the order
+        /// the parser paints tokens in.
         /// </summary>
         public void SetColorAt(int index, byte colorIndex, int length)
         {
+            if (length <= 0) return;
+            colorSpans.Add(new VerilogColorSpan(index, length, colorIndex));
         }
+
+        /// <inheritdoc />
+        public IReadOnlyList<VerilogColorSpan> GetColorSpans() => colorSpans;
 
         /// <summary>
         /// A fresh plain-text buffer holding the same text.

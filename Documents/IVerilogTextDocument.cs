@@ -65,6 +65,24 @@ namespace SystemVerilogCore.Documents
         void SetColorAt(int index, byte colorIndex, int length);
 
         /// <summary>
+        /// Every colour span written into this document, in document order.
+        ///
+        /// <para>
+        /// The parser paints tokens through <see cref="SetColorAt"/>; a host that
+        /// publishes those colours (the language server turns them into semantic
+        /// tokens) has to read them back. Exposing them here means it can do that
+        /// without holding the editor's concrete document type, which is what
+        /// previously forced the LSP to reference the whole UI stack.
+        /// </para>
+        ///
+        /// <para>
+        /// Implementations that never paint (a throw-away buffer) may return an
+        /// empty list.
+        /// </para>
+        /// </summary>
+        IReadOnlyList<VerilogColorSpan> GetColorSpans();
+
+        /// <summary>
         /// Creates an independent buffer holding a copy of this document's text.
         ///
         /// <para>
@@ -160,6 +178,30 @@ namespace SystemVerilogCore.Documents
         /// line; <paramref name="defaultClose"/> starts the region collapsed.
         /// </summary>
         void AppendBlock(int startIndex, int lastIndex, string name, bool defaultClose);
+    }
+
+    /// <summary>
+    /// One colour span: <paramref name="Length"/> characters from
+    /// <paramref name="Index"/> painted with the palette entry
+    /// <paramref name="ColorIndex"/>.
+    /// </summary>
+    public readonly struct VerilogColorSpan
+    {
+        public VerilogColorSpan(int index, int length, byte colorIndex)
+        {
+            Index = index;
+            Length = length;
+            ColorIndex = colorIndex;
+        }
+
+        /// <summary>Document-absolute start offset.</summary>
+        public int Index { get; }
+
+        /// <summary>Span length in characters.</summary>
+        public int Length { get; }
+
+        /// <summary>Palette slot (see <see cref="VerilogColorType"/>).</summary>
+        public byte ColorIndex { get; }
     }
 
     /// <summary>
