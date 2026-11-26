@@ -158,5 +158,44 @@ namespace SystemVerilogCore.Documents
         /// </para>
         /// </summary>
         Projects.IVerilogItemList? ChildItems { get; }
+
+        /// <summary>
+        /// Creates a parser for this file, typed as the UI-free contract.
+        ///
+        /// <para>
+        /// The parser needs this when it has to parse a file on demand: the
+        /// parameter-overridden instance (<c>child #(.WIDTH(4)) u(...)</c>) and
+        /// the <c>@scope</c> target file. It used to call the editor's
+        /// <c>CreateDocumentParser</c> directly, and that single type reference
+        /// kept the parser bound to the editor assembly for parse-mode purposes.
+        /// Returning the contract lets the parser drive a parse without naming
+        /// the editor.
+        /// </para>
+        ///
+        /// <para>
+        /// Returning null means "this file has nothing to parse in this mode"
+        /// (a header file during a background parse is parsed together with its
+        /// parent).
+        /// </para>
+        /// </summary>
+        /// <param name="parseMode">Why the document is being parsed.</param>
+        /// <param name="token">Cancellation token, or null.</param>
+        Parsing.IVerilogDocumentParser? CreateVerilogDocumentParser(
+            Parsing.VerilogParseMode parseMode,
+            System.Threading.CancellationToken? token);
+
+        /// <summary>
+        /// Accepts a parse result produced through
+        /// <see cref="CreateVerilogDocumentParser"/>.
+        ///
+        /// <para>
+        /// The editor-facing acceptance copies colour marks out of the parser's
+        /// document - a host concern. The parser only knows the contract, so it
+        /// hands the parser over and the implementation (which lives in the
+        /// data layer and may name the editor) does the rest.
+        /// </para>
+        /// </summary>
+        System.Threading.Tasks.Task AcceptVerilogParsedDocumentAsync(
+            Parsing.IVerilogDocumentParser parser);
     }
 }
