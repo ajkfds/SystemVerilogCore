@@ -131,11 +131,31 @@ namespace SystemVerilogCore.Verilog
         /// </para>
         /// </summary>
         public ParsedDocument(SystemVerilogCore.Documents.IVerilogSourceFile file, string key, IndexReference? indexReference, SystemVerilogCore.Parsing.VerilogParseMode parseMode)
+            : this(file, key, indexReference, parseMode, null)
+        {
+        }
+
+        /// <summary>
+        /// Builds a parse result over an explicit buffer.
+        ///
+        /// <para>
+        /// A host that drives a parse itself hands the buffer in: an in-memory
+        /// file (the language server) has no document of its own, so reading it
+        /// off the file would fail. <paramref name="document"/> wins when given;
+        /// otherwise the file's own document is used.
+        /// </para>
+        /// </summary>
+        public ParsedDocument(
+            SystemVerilogCore.Documents.IVerilogSourceFile file,
+            string key,
+            IndexReference? indexReference,
+            SystemVerilogCore.Parsing.VerilogParseMode parseMode,
+            SystemVerilogCore.Documents.IVerilogTextDocument? document)
         {
             Key = key;
             ParseMode = parseMode;
 
-            SystemVerilogCore.Documents.IVerilogTextDocument? document = file.VerilogTextDocument;
+            document ??= file.VerilogTextDocument;
             if (document == null) throw new Exception();
             verilogDocument = document;
             Version = file.VerilogTextDocumentVersion;

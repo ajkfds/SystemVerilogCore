@@ -24,12 +24,30 @@ namespace SystemVerilogCore.Documents
     public sealed class PlainTextDocument : IVerilogTextDocument
     {
         private readonly string text;
+        private readonly IVerilogDocumentFile? file;
         private List<int>? lineStarts;
 
         /// <summary>Creates a document over <paramref name="text"/>.</summary>
         public PlainTextDocument(string text)
+            : this(text, null)
+        {
+        }
+
+        /// <summary>
+        /// Creates a document over <paramref name="text"/> that reports
+        /// <paramref name="file"/> as its owner.
+        ///
+        /// <para>
+        /// The owner matters for diagnostics: a parse drops a message when the
+        /// buffer belongs to no file, because there would be nothing to attach it
+        /// to. A host that parses in memory (the language server) has no document
+        /// of its own, so it hands the file here and the diagnostics survive.
+        /// </para>
+        /// </summary>
+        public PlainTextDocument(string text, IVerilogDocumentFile? file)
         {
             this.text = text ?? "";
+            this.file = file;
         }
 
         /// <inheritdoc />
@@ -74,7 +92,7 @@ namespace SystemVerilogCore.Documents
         /// </summary>
         public IVerilogTextDocument CreateSnapshot()
         {
-            return new PlainTextDocument(text);
+            return new PlainTextDocument(text, file);
         }
 
         /// <summary>No-op: these buffers are never displayed.</summary>
@@ -82,8 +100,11 @@ namespace SystemVerilogCore.Documents
         {
         }
 
-        /// <summary>Null: a throw-away buffer belongs to no file.</summary>
-        public IVerilogDocumentFile? File => null;
+        /// <summary>
+        /// The file this buffer reports as its owner, or null for a throw-away
+        /// buffer (macro expansion, hint text) whose diagnostics are dropped.
+        /// </summary>
+        public IVerilogDocumentFile? File => file;
 
         /// <inheritdoc />
         public int GetLineAt(int index)
