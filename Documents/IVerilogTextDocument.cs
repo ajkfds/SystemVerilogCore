@@ -83,6 +83,25 @@ namespace SystemVerilogCore.Documents
         IReadOnlyList<VerilogColorSpan> GetColorSpans();
 
         /// <summary>
+        /// Every fold region recorded on this document, in document order.
+        ///
+        /// <para>
+        /// The parser reports foldable constructs (module / begin-end / class
+        /// bodies) through <see cref="AppendBlock(int,int,string,bool)"/>; a host
+        /// that publishes them (the language server answers
+        /// <c>textDocument/foldingRange</c>) has to read them back. Exposing them
+        /// here means it can do that without holding the editor's concrete
+        /// document and its AvaloniaEdit folding manager.
+        /// </para>
+        ///
+        /// <para>
+        /// Implementations that never fold (a throw-away buffer) may return an
+        /// empty list.
+        /// </para>
+        /// </summary>
+        IReadOnlyList<VerilogFoldRegion> GetFoldRegions();
+
+        /// <summary>
         /// Creates an independent buffer holding a copy of this document's text.
         ///
         /// <para>
@@ -178,6 +197,30 @@ namespace SystemVerilogCore.Documents
         /// line; <paramref name="defaultClose"/> starts the region collapsed.
         /// </summary>
         void AppendBlock(int startIndex, int lastIndex, string name, bool defaultClose);
+    }
+
+    /// <summary>
+    /// One fold region: the character range
+    /// [<paramref name="StartIndex"/>, <paramref name="LastIndex"/>] and the
+    /// label to show on the folded line.
+    /// </summary>
+    public readonly struct VerilogFoldRegion
+    {
+        public VerilogFoldRegion(int startIndex, int lastIndex, string? name)
+        {
+            StartIndex = startIndex;
+            LastIndex = lastIndex;
+            Name = name;
+        }
+
+        /// <summary>First character of the region.</summary>
+        public int StartIndex { get; }
+
+        /// <summary>Last character of the region (inclusive).</summary>
+        public int LastIndex { get; }
+
+        /// <summary>Label shown on the folded line, or null.</summary>
+        public string? Name { get; }
     }
 
     /// <summary>

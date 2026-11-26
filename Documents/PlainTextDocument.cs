@@ -153,14 +153,22 @@ namespace SystemVerilogCore.Documents
             return length;
         }
 
-        /// <summary>No-op: these buffers are never displayed.</summary>
+        /// <summary>Fold regions recorded on this buffer.</summary>
+        private readonly List<VerilogFoldRegion> foldRegions = new();
+
+        /// <summary>Records a fold region. Kept so a host can publish it.</summary>
         public void AppendBlock(int startIndex, int lastIndex)
         {
+            foldRegions.Add(new VerilogFoldRegion(startIndex, lastIndex, null));
         }
 
-        /// <summary>No-op: these buffers are never displayed.</summary>
+        /// <inheritdoc />
+        public IReadOnlyList<VerilogFoldRegion> GetFoldRegions() => foldRegions;
+
+        /// <summary>Records a named fold region. Kept so a host can publish it.</summary>
         public void AppendBlock(int startIndex, int lastIndex, string name, bool defaultClose)
         {
+            foldRegions.Add(new VerilogFoldRegion(startIndex, lastIndex, name));
         }
 
         /// <summary>
