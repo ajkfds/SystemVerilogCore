@@ -466,6 +466,67 @@ namespace SystemVerilogCore.Verilog.Items
                                 await instance.AcceptVerilogParsedDocumentAsync(baseParser);
                             }
                         }
+                        else
+                        {
+                            // No item to build (a host without an item tree), but
+                            // the instance STILL has to be parsed: the lookup below
+                            // only reads an already-parsed result, so skipping the
+                            // parse leaves effectiveModule null and the port list /
+                            // generate branches of this instance resolve through the
+                            // declared defaults instead of the overrides.
+                            //
+                            // Parsing and "showing the node" are separate concerns:
+                            // the parse is the parser's own job (it drives the same
+                            // engine the hosts use), while recording an item-tree
+                            // node is the host's. Only the recording is optional.
+                            // The parse is recorded on the file the CALLER parses
+                            // with (word.RootParsedDocument.File), not on baseFile:
+                            // baseFile is only the declaration lookup result, and a
+                            // host that registered itself there is not the same
+                            // object the reader queries. Using the caller's own file
+                            // keeps the instance cache entry where every reader -
+                            // GetInstancedBuildingBlock below, the hierarchy, the
+                            // click path - looks it up.
+                            // Recorded on the DECLARING file (baseFile) because
+                            // that is the file whose instance cache every reader
+                            // queries (GetInstancedBuildingBlock resolves the name
+                            // to baseFile and asks it for the key). The text is the
+                            // declaring file's own, which is what an instance parse
+                            // of that module means.
+                            // The TEXT must come from the host's own buffer for the
+                            // declaring file: a host that never opened it has no
+                            // buffer on the plugin file, and an empty text would
+                            // parse nothing (the include inside the module body then
+                            // stayed unresolved). Ask the host for the file it knows
+                            // and fall back to baseFile's buffer when it has one.
+                            string instanceText =
+                                (word.RootParsedDocument.Project?.Items
+                                    ?.FindByRelativePath(baseFile.FileRelativePath)
+                                    as SystemVerilogCore.Documents.IVerilogSourceFile)
+                                ?.VerilogTextDocument?.CreateString()
+                                ?? baseFile.VerilogTextDocument?.CreateString()
+                                ?? string.Empty;
+                            SystemVerilogCore.Verilog.ParsedDocument? instanceParsed =
+                                await SystemVerilogCore.Parsing.ParseEngine.ParseInstanceAsync(
+                                    instanceText,
+                                    baseFile,
+                                    moduleInstantiation.SourceName,
+                                    moduleInstantiation.ParameterOverrides,
+                                    word.CancellationToken);
+                            // The item-tree registration the editor does above is a
+                            // host concern; this host records nothing there. But the
+                            // readers that walk the tree by NAME (the simulation
+                            // setup's instance lookup, the include resolution inside
+                            // the instance body) still need to find this instance, so
+                            // ask the host to expose it through the same contract.
+                            if (instanceParsed != null)
+                            {
+                                (word.RootParsedDocument.File
+                                    as SystemVerilogCore.Documents.IVerilogInstanceItemSourceProvider)
+                                    ?.RegisterInstanceItem(
+                                        moduleInstantiation.Name, instanceParsed);
+                            }
+                        }
 
                         effectiveModule = sourceProjectProperty.GetInstancedBuildingBlock(moduleInstantiation) as Module;
                     }

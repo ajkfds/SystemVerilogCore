@@ -50,6 +50,33 @@ namespace SystemVerilogCore.Documents
         object? FindInstanceItem(string name);
     }
 
+    /// <summary>
+    /// A host that records the instances it parsed, so a later walk can find
+    /// them by name.
+    ///
+    /// <para>
+    /// The editor records an instance as an item-tree node
+    /// (<c>VerilogModuleInstance</c>) and the tree answers lookups by name. A
+    /// host without a tree still has to answer them: the simulation setup walks
+    /// instances to collect the files a simulator would compile, and an include
+    /// inside an instance body resolves through the instance's own parse. This
+    /// contract is that recording step, without the item tree.
+    /// </para>
+    ///
+    /// <para>
+    /// Implementations keep the parse result keyed by the instance name (or
+    /// "name[i]" for an array element), which is the name the callers use.
+    /// </para>
+    /// </summary>
+    public interface IVerilogInstanceItemSourceProvider
+    {
+        /// <summary>
+        /// Records that <paramref name="instanceName"/> was parsed as
+        /// <paramref name="parsedDocument"/>.
+        /// </summary>
+        void RegisterInstanceItem(string instanceName, Parsing.IParsedDocument parsedDocument);
+    }
+
     public interface IVerilogSourceFileInstanceCache
     {
         /// <summary>
