@@ -27,6 +27,20 @@ namespace SystemVerilogCore.Documents
         /// instance identified by <paramref name="instanceKey"/>.
         /// </summary>
         void RegisterInstanceParsedDocument(string instanceKey, Parsing.IParsedDocument parsedDocument);
+
+        /// <summary>
+        /// Drops every recorded instance result.
+        ///
+        /// <para>
+        /// A file's text changed, so every parameter-overridden parse it produced
+        /// for its instances describes the old text. A host that refreshes a
+        /// buffer (the language server on <c>didChange</c>) has to call this, or
+        /// an expand under a parent keeps showing the previous instantiations.
+        /// The editor drops them while accepting the new parse result; a host
+        /// that drives its own buffer has no such hook.
+        /// </para>
+        /// </summary>
+        void ClearInstanceParsedDocuments();
     }
 
     /// <summary>
