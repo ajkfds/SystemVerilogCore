@@ -20,6 +20,36 @@ namespace SystemVerilogCore.Documents
     /// skipped.
     /// </para>
     /// </summary>
+    /// <summary>
+    /// A file that can hand out the instance items it registered.
+    ///
+    /// <para>
+    /// <c>SimulationSetup</c> walks the instance tree to collect the files a
+    /// simulator would compile, and it looks an instance up by name because the
+    /// INSTANCE - not the definition file - carries the parameter-overridden
+    /// parse. The editor's items live in <c>Data.Item.Items</c>; a host without
+    /// that tree answers from whatever it has (the language server derives the
+    /// nodes on demand).
+    /// </para>
+    ///
+    /// <para>
+    /// Returning null means "this host has no instance items", in which case the
+    /// caller falls back to the definition file's own parse.
+    /// </para>
+    /// </summary>
+    public interface IVerilogInstanceItemSource
+    {
+        /// <summary>
+        /// The instance item registered under <paramref name="name"/>, or null.
+        /// </summary>
+        /// <remarks>
+        /// The name is the instantiation's name (or "name[i]" for an array
+        /// element). The returned object is host-defined: the caller narrows it
+        /// to the source-file contract to read its parse result.
+        /// </remarks>
+        object? FindInstanceItem(string name);
+    }
+
     public interface IVerilogSourceFileInstanceCache
     {
         /// <summary>
