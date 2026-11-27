@@ -116,6 +116,19 @@ namespace SystemVerilogCore.Tree
             IVerilogTreeNode parent,
             Verilog.Items.InterfaceInstance instantiation);
 
+        /// <summary>
+        /// Creates the node that stands for a building block listed directly by
+        /// its own file (a multi-block file shows one node per block).
+        /// </summary>
+        /// <remarks>
+        /// The editor models that node as a module / interface instance whose
+        /// name is the block's name; a host without an item tree can build any
+        /// node it likes. Returning null skips the block.
+        /// </remarks>
+        IVerilogTreeNode? CreateBuildingBlockNode(
+            IVerilogTreeNode parent,
+            Verilog.BuildingBlocks.BuildingBlock block);
+
         /// <summary>Creates the node for an imported package.</summary>
         IVerilogTreeNode? CreateImportedPackage(IVerilogTreeNode parent, string packageName);
 

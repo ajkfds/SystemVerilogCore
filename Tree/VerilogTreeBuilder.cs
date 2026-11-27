@@ -144,34 +144,12 @@ namespace SystemVerilogCore.Tree
                 return;
             }
 
-            // The building block is instantiated as itself: the editor models
-            // that as a module instantiation whose name is the block's name.
-            ModuleInstantiation? selfInstantiation = CreateSelfInstantiation(block);
-            if (selfInstantiation == null) return;
-
-            IVerilogTreeNode? node = factory.CreateModuleInstance(parent, selfInstantiation);
+            // The node stands for the block itself (the editor models it as a
+            // module / interface instance named after the block), so the host
+            // builds it.
+            IVerilogTreeNode? node = factory.CreateBuildingBlockNode(parent, block);
             if (node == null) return;
             children.Add(node);
-        }
-
-        /// <summary>
-        /// The instantiation that stands for a building block listed directly by
-        /// its own file (the editor's "the file is the block" node).
-        /// </summary>
-        private static ModuleInstantiation? CreateSelfInstantiation(BuildingBlock block)
-        {
-            if (block is not Module module) return null;
-
-            return new ModuleInstantiation()
-            {
-                BeginIndexReference = module.BeginIndexReference,
-                DefinitionReference = module.DefinitionReference,
-                Name = module.Name,
-                ParameterOverrides = new Dictionary<string, Verilog.Expressions.Expression>(),
-                Project = module.Project,
-                SourceName = module.Name,
-                SourceProjectName = module.Project?.Name ?? "",
-            };
         }
 
         /// <summary>
